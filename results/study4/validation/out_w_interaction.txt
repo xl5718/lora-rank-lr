@@ -1,0 +1,122 @@
+============================================================================================
+STUDY 4 — PRE-REGISTERED REPLICATION ANALYSIS
+============================================================================================
+
+############################################################################################
+ARM A:  synthetic  x  synthetic
+############################################################################################
+  runs on file: 125   complete seeds: [42, 43, 44, 45, 46]  (5/5)
+
+  P1  rank x lr interaction (validation macro-F1, all ranks x all lrs)
+      robust seed-blocked test: Wald = 225.1 on 16 contrasts, wild-bootstrap p = 0.0001   ->  REPLICATES
+      sensitivity, whole-seed cluster bootstrap: p = 0.0001
+      (classical F(16,100) = 10.70, p = 2.51e-15, partial eta2 = 0.63; for comparison with Study 3 only)
+
+  P2  per-rank validation tuning vs fixed lr (TEST accuracy)
+      preferred lr:   r=1: 3e-03   r=2: 3e-03   r=4: 1e-03   r=8: 1e-03   r=16: 1e-03
+      tuned test acc: r=1: 0.8999   r=2: 0.9125   r=4: 0.9130   r=8: 0.9200   r=16: 0.9083
+      fixed-lr spreads: 1e-04: 0.0679   3e-04: 0.1013   1e-03: 0.0343   3e-03: 0.2991   1e-02: 0.4646
+      tuned spread 0.0201 | median fixed 0.1013
+      RATIO = 0.198   95% interval (whole-seed bootstrap) [0.10, 0.58]   share of resamples <= 0.5: 0.96
+      ->  REPLICATES  (bar: ratio <= 0.50)
+
+  S1  pre-registered reversal contrasts (secondary; IUT, Holm over 2)
+      C1: r16 > r1 at 3e-04 by +0.1480 (p=0.0006);  r1 > r16 at 3e-03 by +0.3165 (p=0.0154)
+          contrast p = 0.0154  ->  CONFIRMED (Holm)
+      C2: r8 > r2 at 3e-04 by +0.1036 (p=0.0062);  r2 > r8 at 3e-03 by +0.2198 (p=0.0081)
+          contrast p = 0.0081  ->  CONFIRMED (Holm)
+
+  EXPLORATORY (descriptive; not decision-relevant)
+      middle ranks {2,4,8}, all lrs: robust p = 0.0005
+      stable lrs ['3e-04', '1e-03']: all ranks robust p = 0.0010; middle ranks robust p = 0.0540  (low power: see study4_power_check)
+      fit map (L = low-fit < 0.8, D = diverged <= majority 0.622):
+        rank     1e-04     3e-04     1e-03     3e-03     1e-02
+       1     L5 D0        ok        ok        ok     L0 D5
+       2     L5 D0        ok        ok        ok     L0 D5
+       4     L5 D0        ok        ok        ok     L5 D0
+       8     L4 D0        ok        ok     L2 D2     L5 D0
+      16        ok        ok        ok     L1 D3     L0 D5
+      per-seed Spearman(rank, log preferred lr) = -0.73 (p = 0.000)
+
+############################################################################################
+ARM B:  synthetic  x  synthetic
+############################################################################################
+  runs on file: 125   complete seeds: [42, 43, 44, 45, 46]  (5/5)
+
+  P1  rank x lr interaction (validation macro-F1, all ranks x all lrs)
+      robust seed-blocked test: Wald = 190.5 on 16 contrasts, wild-bootstrap p = 0.0001   ->  REPLICATES
+      sensitivity, whole-seed cluster bootstrap: p = 0.0001
+      (classical F(16,100) = 10.02, p = 1.63e-14, partial eta2 = 0.62; for comparison with Study 3 only)
+
+  P2  per-rank validation tuning vs fixed lr (TEST accuracy)
+      preferred lr:   r=1: 3e-03   r=2: 1e-03   r=4: 1e-03   r=8: 1e-03   r=16: 1e-03
+      tuned test acc: r=1: 0.9148   r=2: 0.9046   r=4: 0.8930   r=8: 0.9138   r=16: 0.9005
+      fixed-lr spreads: 1e-04: 0.1080   3e-04: 0.0915   1e-03: 0.0455   3e-03: 0.2446   1e-02: 0.3277
+      tuned spread 0.0218 | median fixed 0.1080
+      RATIO = 0.202   95% interval (whole-seed bootstrap) [0.15, 0.39]   share of resamples <= 0.5: 1.00
+      ->  REPLICATES  (bar: ratio <= 0.50)
+
+  S1  pre-registered reversal contrasts (secondary; IUT, Holm over 2)
+      C1: r16 > r1 at 3e-04 by +0.1494 (p=0.0002);  r1 > r16 at 3e-03 by +0.3329 (p=0.0167)
+          contrast p = 0.0167  ->  CONFIRMED (Holm)
+      C2: r8 > r2 at 3e-04 by +0.0562 (p=0.0155);  r2 > r8 at 3e-03 by +0.3476 (p=0.0043)
+          contrast p = 0.0155  ->  CONFIRMED (Holm)
+
+  EXPLORATORY (descriptive; not decision-relevant)
+      middle ranks {2,4,8}, all lrs: robust p = 0.0005
+      stable lrs ['3e-04', '1e-03']: all ranks robust p = 0.0065; middle ranks robust p = 0.6205  (low power: see study4_power_check)
+      fit map (L = low-fit < 0.8, D = diverged <= majority 0.622):
+        rank     1e-04     3e-04     1e-03     3e-03     1e-02
+       1     L5 D0        ok        ok        ok     L0 D5
+       2     L5 D0        ok        ok        ok     L0 D5
+       4     L5 D0        ok        ok        ok     L4 D1
+       8     L4 D0        ok        ok     L4 D1     L3 D2
+      16        ok        ok        ok     L1 D3     L0 D5
+      per-seed Spearman(rank, log preferred lr) = -0.50 (p = 0.010)
+
+############################################################################################
+ARM C:  synthetic  x  synthetic
+############################################################################################
+  runs on file: 125   complete seeds: [42, 43, 44, 45, 46]  (5/5)
+
+  P1  rank x lr interaction (validation macro-F1, all ranks x all lrs)
+      robust seed-blocked test: Wald = 237.9 on 16 contrasts, wild-bootstrap p = 0.0001   ->  REPLICATES
+      sensitivity, whole-seed cluster bootstrap: p = 0.0001
+      (classical F(16,100) = 9.67, p = 4.46e-14, partial eta2 = 0.61; for comparison with Study 3 only)
+
+  P2  per-rank validation tuning vs fixed lr (TEST accuracy)
+      preferred lr:   r=1: 3e-03   r=2: 1e-03   r=4: 1e-03   r=8: 1e-03   r=16: 1e-03
+      tuned test acc: r=1: 0.9001   r=2: 0.9009   r=4: 0.9024   r=8: 0.9198   r=16: 0.9035
+      fixed-lr spreads: 1e-04: 0.0423   3e-04: 0.1013   1e-03: 0.0253   3e-03: 0.2643   1e-02: 0.3699
+      tuned spread 0.0197 | median fixed 0.1013
+      RATIO = 0.194   95% interval (whole-seed bootstrap) [0.12, 0.50]   share of resamples <= 0.5: 0.97
+      ->  REPLICATES  (bar: ratio <= 0.50)
+
+  S1  pre-registered reversal contrasts (secondary; IUT, Holm over 2)
+      C1: r16 > r1 at 3e-04 by +0.1386 (p=0.0027);  r1 > r16 at 3e-03 by +0.2693 (p=0.0520)
+          contrast p = 0.0520  ->  INCONCLUSIVE after correction
+      C2: r8 > r2 at 3e-04 by +0.0944 (p=0.0040);  r2 > r8 at 3e-03 by +0.3061 (p=0.0040)
+          contrast p = 0.0040  ->  CONFIRMED (Holm)
+
+  EXPLORATORY (descriptive; not decision-relevant)
+      middle ranks {2,4,8}, all lrs: robust p = 0.0005
+      stable lrs ['3e-04', '1e-03']: all ranks robust p = 0.0010; middle ranks robust p = 0.0025  (low power: see study4_power_check)
+      fit map (L = low-fit < 0.8, D = diverged <= majority 0.622):
+        rank     1e-04     3e-04     1e-03     3e-03     1e-02
+       1     L5 D0        ok        ok        ok     L0 D5
+       2     L5 D0        ok        ok        ok     L0 D5
+       4     L5 D0        ok        ok        ok     L4 D1
+       8     L5 D0        ok        ok     L2 D2     L3 D2
+      16        ok        ok        ok     L4 D1     L1 D4
+      per-seed Spearman(rank, log preferred lr) = -0.38 (p = 0.062)
+
+============================================================================================
+DECISION  (supervisor, Oct 2026)
+============================================================================================
+  arm A: P1 [yes]  P2 [yes]  ->  REPLICATES
+  arm B: P1 [yes]  P2 [yes]  ->  REPLICATES
+  arm C: P1 [yes]  P2 [yes]  ->  REPLICATES
+
+  ALL THREE ARMS REPLICATE -> stop expanding the main experiments; write the paper.
+
+wrote study4_prereg_summary.json

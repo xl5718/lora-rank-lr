@@ -1,0 +1,90 @@
+==========================================================================================
+STUDY 3 — PRE-REGISTERED ANALYSIS  (rank x learning rate, n = 500)
+==========================================================================================
+
+records in file: 237
+LoRA grid cells complete: 25/25 
+full-FT cells complete:   10/10 
+
+==========================================================================================
+STABILITY  (unstable seeds / 3;  final train acc < 0.80)  — an OUTCOME
+==========================================================================================
+  rank     1e-04     3e-04     1e-03     3e-03     1e-02   stable upper edge
+     1       3/3       0/3       0/3       0/3       3/3   3e-03
+     2       3/3       0/3       0/3       0/3       3/3   3e-03
+     4       3/3       0/3       0/3       0/3       3/3   3e-03
+     8       3/3       0/3       0/3       2/3       3/3   1e-03
+    16       0/3       0/3       0/3       2/3       3/3   1e-03
+
+==========================================================================================
+Q1  Does rank interact with lr across the full set of ranks?  (validation)
+==========================================================================================
+  all 5 ranks, all lrs               F(16,50) =    4.96   p = 6.25e-06   partial eta2 = 0.61   interaction share = 0.15
+  all 5 ranks, stable lrs only       F(4,20) =    4.36   p = 1.07e-02   partial eta2 = 0.47   interaction share = 0.05
+  middle ranks {2,4,8}, all lrs      F(8,30) =    4.08   p = 2.20e-03   partial eta2 = 0.52   interaction share = 0.06
+  middle ranks {2,4,8}, stable lrs   F(2,12) =    1.20   p = 3.34e-01   partial eta2 = 0.17   interaction share = 0.01
+
+  stable lr columns used: ['3e-04', '1e-03']
+  Verdict: NOT confined - interaction present among the middle ranks too
+
+==========================================================================================
+Q2  Does the preferred lr shift with rank?  (validation macro-F1)
+==========================================================================================
+  pooled preferred lr:  r=1: 3e-03   r=2: 3e-03   r=4: 1e-03   r=8: 1e-03   r=16: 1e-03
+  local reversals: 0 
+  per-seed Spearman(rank, log lr*) = -0.77  (p = 0.001, 15 seed-level picks)
+  stable upper edge:    r=1: 3e-03   r=2: 3e-03   r=4: 3e-03   r=8: 1e-03   r=16: 1e-03
+  EVIDENCE: STRONG
+
+==========================================================================================
+Q3  Does "which rank is better" depend on the fixed lr?  (validation)
+==========================================================================================
+  lr=1e-04  winner r=16  ranking: r16 > r8 > r4 > r2 > r1
+  lr=3e-04  winner r=16  ranking: r16 > r8 > r4 > r2 > r1
+  lr=1e-03  winner r=8   ranking: r8 > r16 > r4 > r2 > r1
+  lr=3e-03  winner r=1   ranking: r1 > r2 > r4 > r8 > r16
+  lr=1e-02  winner r=1   ranking: r1 > r4 > r2 > r8 > r16
+
+  distinct winning ranks across lrs: [1, 8, 16]   (descriptive only - satisfiable by noise)
+  lr pairs with Kendall tau < 0: 6 of 10   (descriptive only)
+
+  SIGNIFICANT rank reversals (each direction > 2 SE): 6 of 10 rank pairs
+    r=1 > r=8 at lr ['3e-03', '1e-02']   but   r=8 > r=1 at lr ['3e-04', '1e-03']
+    r=1 > r=16 at lr ['3e-03', '1e-02']   but   r=16 > r=1 at lr ['1e-04', '3e-04', '1e-03']
+    r=2 > r=8 at lr ['3e-03']   but   r=8 > r=2 at lr ['3e-04']
+    r=2 > r=16 at lr ['3e-03']   but   r=16 > r=2 at lr ['3e-04']
+    r=4 > r=8 at lr ['3e-03', '1e-02']   but   r=8 > r=4 at lr ['3e-04']
+    r=4 > r=16 at lr ['3e-03', '1e-02']   but   r=16 > r=4 at lr ['3e-04']
+
+==========================================================================================
+Q4  After per-rank tuning on validation, do rank differences shrink?  (TEST)
+    [first point at which the test set is read]
+==========================================================================================
+  tuned test acc per rank:  r=1: 0.9125   r=2: 0.9060   r=4: 0.9067   r=8: 0.9151   r=16: 0.9157
+  spread after tuning:  0.0097  (pooled selection)   0.0154  (per-seed selection)
+  spread at each fixed lr: 1e-04: 0.0560   3e-04: 0.0952   1e-03: 0.0296   3e-03: 0.2735   1e-02: 0.3848
+  median fixed-lr spread: 0.0952   ratio tuned/median = 0.10
+  fixed lrs with a LARGER spread than tuned: 5 of 5
+  reference: median seed s.d. in stable cells = 0.0153
+  EVIDENCE: MATERIAL reduction  (pre-set bar: tuned <= 0.5 x median fixed)
+
+==========================================================================================
+FULL FINE-TUNING vs LoRA, both tuned on validation  (TEST, paired by seed)
+==========================================================================================
+  n=250: full lr*=2e-05 (1 unstable runs in sweep)   LoRA r*=16, lr*=1e-03  [9 LoRA configs searched]
+         full - LoRA = +0.0045 ± 0.0312   full wins 2/3 seeds
+  n=500: full lr*=2e-05 (2 unstable runs in sweep)   LoRA r*=8, lr*=1e-03  [25 LoRA configs searched]
+         full - LoRA = -0.0006 ± 0.0087   full wins 1/3 seeds
+  Note: at n=250 the LoRA search covers fewer configurations than at n=500.
+
+==========================================================================================
+DECISION  (supervisor, 17 Sep: proceed only if consistently positive)
+==========================================================================================
+  [yes] Q1 systematic interaction, not confined to extremes
+  [yes] Q2 preferred lr shifts with rank
+  [yes] Q3 winning rank depends on fixed lr
+  [yes] Q4 tuning materially shrinks rank differences
+
+  CONSISTENTLY POSITIVE -> next: replicate on one more model and 1-2 more tasks
+
+wrote study3_prereg_summary.json

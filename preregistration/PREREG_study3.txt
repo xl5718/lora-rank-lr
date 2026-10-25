@@ -1,0 +1,42 @@
+STUDY 3 — PRE-REGISTRATION RECORD
+=================================
+Frozen:  2026-09-23 01:42 UTC
+Script:  study3_prereg_analysis.py
+sha256:  8bd47a637e65f7cc635cb5d9432759e75cfc0dcb4ee7907d527b0c696f7b052e
+
+Status at freezing: the Study 3 results had NOT been inspected.
+
+Verify later with:   shasum -a 256 study3_prereg_analysis.py
+Any change to the script after this point invalidates the pre-registration.
+Additional analyses go in a separate file labelled EXPLORATORY.
+
+Questions (supervisor, 17 Sep 2026)
+  Q1  rank x lr interaction across ALL five ranks, not just r=1 and r=16
+  Q2  preferred / stable lr region shifts with rank
+  Q3  which rank is "better" depends on the fixed lr
+  Q4  per-rank tuning on validation materially shrinks rank differences
+
+Fixed rules
+  - All selection on validation macro-F1. Q1-Q3 use validation only.
+    Test is read only in Q4 and the full-FT comparison.
+  - Diverged runs kept. UNSTABLE = final train accuracy < 0.80.
+  - Q1: two-way ANOVA with replication, interaction F-test, alpha 0.05.
+        "Confined to extremes" = significant with all ranks but not among {2,4,8}.
+  - Q2: STRONG = preferred lr non-increasing in rank, no reversals.
+        MODERATE = one reversal of one grid step, overall trend downward.
+  - Q3: at least one SIGNIFICANT reversal - ranks a,b and lrs x,y with a>b at x
+        and b>a at y, each by more than 2 standard errors.
+  - Q4: MATERIAL = tuned spread <= 0.5 x median fixed-lr spread.
+  - Proceed to replication only if all four are positive.
+
+Validated before freezing on three synthetic worlds
+  genuine interaction       -> all four yes, PROCEED
+  no interaction (null)     -> all four no,  do not proceed
+  effect at r=1, r=16 only  -> Q1 no (confined to extremes), do not proceed
+
+Two findings from that validation, disclosed:
+  1. The original Q3 rule ("the winning rank differs across lrs") was satisfied
+     by pure noise in the null world, since with equal ranks the winner at each
+     lr is random. Replaced with the significant-reversal rule above.
+  2. In the extremes-only world, Q2, Q3 and Q4 all pass. The ONLY criterion that
+     catches an extremes-only effect is the middle-rank interaction test in Q1.

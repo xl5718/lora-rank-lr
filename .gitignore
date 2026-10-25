@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+*.tmp
+# summaries regenerated when the analysis scripts are run from the repo root
+/study3_prereg_summary.json
+/study3_posthoc_summary.json
+/study4_prereg_summary.json

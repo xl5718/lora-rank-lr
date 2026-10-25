@@ -1,0 +1,92 @@
+STUDY 4 — PRE-REGISTRATION RECORD  (replication of Study 3)
+===========================================================
+Version: 2   (current)
+Frozen:  2026-10-16 18:55 UTC
+Script:  study4_prereg_analysis.py
+sha256:  7efa3c31929d665b43b4e7328e005977cb571472509a50c02b099c3263204c35
+Harness: study4_replication.py   (tests: test_study4.py, 43/43 pass)
+
+Status at freezing: NO non-pilot Study 4 run has been performed.
+
+Version history
+  v1  2026-10-12 23:43 UTC  sha256 c772e2e29b40be50556e05d18b7cd8acd372a05cf1f69f2616f2abd16a3db408
+  v2  2026-10-16 18:55 UTC  sha256 7efa3c31929d665b43b4e7328e005977cb571472509a50c02b099c3263204c35
+      Reason: supervisor (16 Oct) asked that the seed/block structure be
+      preserved. Every seed uses the same training subsample in all 25 cells,
+      so seed is a block. v1 treated the cells as independent. v2 blocks on
+      seed in P1, bootstraps whole seeds for the P2 interval, pairs by seed in
+      S1, and adds a whole-seed cluster bootstrap as a P1 sensitivity analysis.
+      Outcomes, thresholds, contrasts and decision rule are unchanged.
+      P2 now also reports the continuous ratio with its interval (supervisor).
+
+Revisions are allowed only before the first non-pilot run.
+Pilot (timing) runs show only time and memory and are excluded from analysis.
+Verify with:   shasum -a 256 study4_prereg_analysis.py
+
+Scope (supervisor, Oct 2026): arms A-C are the final major experimental stage,
+whatever their outcome. Mixed results will be reported as boundary conditions,
+not answered with new arms.
+
+Design (one factor changed at a time)
+  A  Qwen2.5-1.5B x Financial PhraseBank   (LoRA only: 1.5B full FT does not fit a T4)
+  B  Qwen2.5-0.5B x SST-2                  (test = GLUE validation, 872)
+  C  Qwen2.5-0.5B x AG News                (test = fixed stratified 2,000 of 7,600)
+  Val = 518, carved stratified from train with a fixed seed (FPB: Study 3 split).
+  Protocol identical to Study 3: n = 500, 160 steps, 12 val checks, patience 4,
+  LoRA q/v, alpha = 2r, AdamW wd 0.01, OneCycle, fp16 autocast.
+  Grid: r {1,2,4,8,16} x lr {1e-4,3e-4,1e-3,3e-3,1e-2} x seeds {42..46}
+  = 125 runs per arm, run seed-major so partial data are balanced.
+  Seed = block: the same training subsample and initialisation seed in all
+  25 cells of that seed.
+
+Primary outcomes (per arm; the only outcomes that drive the decision)
+  P1  rank x lr interaction on validation macro-F1, all ranks x all lrs.
+      Seed-blocked, heteroscedasticity-robust Wald test of the 16 interaction
+      contrasts; wild bootstrap under the additive model with seed effects
+      held fixed, B = 9,999, alpha 0.05.
+      Sensitivity (reported): whole-seed cluster bootstrap (Webb weights).
+  P2  tuned spread <= 0.5 x median fixed-lr spread (test accuracy; the
+      Study 3 rule unchanged). The continuous ratio is reported with a 95%
+      interval from a whole-seed bootstrap.
+  An arm REPLICATES if P1 and P2 both hold.
+  All three replicate -> stop expanding the main experiments, write the paper.
+  Otherwise -> discuss with the supervisor; no new arms.
+
+Secondary confirmatory (per arm; reported, not decision-relevant)
+  C1  r=16 > r=1 at lr 3e-4  AND  r=1 > r=16 at lr 3e-3
+  C2  r=8  > r=2 at lr 3e-4  AND  r=2 > r=8  at lr 3e-3
+  One-sided paired t (paired by seed) per direction; contrast p = max of the
+  two; Holm over 2. Chosen from Study 3 on principle, not by smallest p.
+  A failed contrast is reported as "inconclusive after correction".
+
+Exploratory only
+  preferred lr per rank; low-fit / diverged map; middle-rank and stable-lr-only
+  interaction; per-seed Spearman.
+
+Validation before freezing (study4_validation/, mc_script.py, mc_script_output.txt)
+  * Study 3 data re-expressed as one arm reproduces Study 3 (classical
+    F(16,50) = 4.96, ratio 0.10, Spearman -0.77).
+  * Synthetic worlds: full effect -> all arms replicate; no interaction
+    (with and without seed blocks) -> no arm replicates; half effect -> mixed;
+    incomplete grid -> uses the 4 complete seeds; pilot record excluded.
+  * Monte Carlo of the script's own functions, 300 datasets per world:
+                          P1 v2   P1 cluster   classical F   P2     replicates   C1    C2
+      null                0.033   0.020        0.180         0.000  0.000        0.00  0.00
+      null + seed blocks  0.017   0.043        0.083         0.000  0.000        0.00  0.00
+      half                0.743   0.670        0.813         0.113  0.087        0.11  0.04
+      half + seed blocks  0.670   0.727        0.760         0.103  0.073        0.07  0.04
+      full                1.000   0.997        1.000         0.990  0.990        0.82  0.67
+      full + seed blocks  1.000   0.997        1.000         0.917  0.917        0.73  0.63
+
+Disclosures
+  1. The classical ANOVA F-test used in Study 3 is anti-conservative here
+     (18% false positives under a true null) because cell variances differ
+     greatly. Applied post hoc to Study 3 (3 seeds), the v2 test gives
+     all ranks p = 0.006 (conclusion unchanged); middle ranks {2,4,8}
+     p = 0.04 (previously 0.002).
+  2. P2 is demanding: it passes with high probability only if the effect is
+     close to the Study 3 size (about 0.1 at half size). The continuous ratio
+     and its interval are therefore always reported.
+  3. S1 power with 5 seeds at the Study 3 effect size: about 0.6-0.8 per contrast.
+  4. If the 1.5B model prefers lower learning rates overall, the fixed S1
+     learning rates (3e-4, 3e-3) may not straddle its optimum.

@@ -1,0 +1,14 @@
+# analysis (CPU only)
+numpy
+scipy
+matplotlib
+# training (GPU; installed in the Colab notebooks)
+torch
+transformers>=4.44
+peft>=0.12
+datasets>=2.20
+accelerate>=0.33
+scikit-learn
+pandas
+pyarrow
+psutil

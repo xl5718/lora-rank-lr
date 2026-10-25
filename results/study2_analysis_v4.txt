@@ -1,0 +1,99 @@
+========================================================================================
+STUDY 2 v4 — after the learning-rate and matched-budget follow-ups
+165 runs total
+========================================================================================
+
+================================================================================
+3B  LEARNING-RATE SWEEP — the decisive experiment
+================================================================================
+The main grid ran every LoRA arm at lr = 3e-4. If low-rank adapters simply need
+a larger step size, the low training accuracy at n = 250-500 is an optimisation
+artefact and the capacity reading is wrong.
+
+    n  rank              lr=3e-04              lr=1e-03              lr=3e-03
+                     train / test          train / test          train / test
+----------------------------------------------------------------------------------------
+  250     1        0.927 / 0.7278        1.000 / 0.8449        1.000 / 0.8758
+  250    16        1.000 / 0.8063        1.000 / 0.8616        0.585 / 0.5862
+
+  500     1        0.875 / 0.7703        0.993 / 0.8861        0.999 / 0.9125
+  500    16        0.994 / 0.8655        1.000 / 0.9157        0.699 / 0.6390
+
+  FINDING 1 — the underfitting disappears with a larger learning rate.
+    n=250: r=1 train accuracy 0.927 at lr=3e-4  ->  1.000 at lr=3e-3
+    n=500: r=1 train accuracy 0.875 at lr=3e-4  ->  0.999 at lr=3e-3
+  The capacity-limitation reading of the main grid is REFUTED.
+
+  FINDING 2 — the rank ordering REVERSES with the learning rate.
+    n=250: at lr=3e-4  r=1 0.7278 < r=16 0.8063   (r=16 better by +0.0785)
+             at lr=3e-3  r=1 0.8758 > r=16 0.5862   (r=1  better by +0.2896)
+    n=500: at lr=3e-4  r=1 0.7703 < r=16 0.8655   (r=16 better by +0.0952)
+             at lr=3e-3  r=1 0.9125 > r=16 0.6390   (r=1  better by +0.2735)
+  A rank ablation at fixed learning rate measures LR mismatch, not rank.
+
+  FINDING 3 — tuned per rank, rank barely matters.
+        n              r=1 best             r=16 best    difference
+      250        0.8758 @ 3e-03        0.8616 @ 1e-03       +0.0142
+      500        0.9125 @ 3e-03        0.9157 @ 1e-03       -0.0032
+    Consistent with Hu et al., who report performance largely flat in r.
+
+  FINDING 4 — the previous headline does not survive.
+        n     full FT    LoRA @3e-4    LoRA tuned     old claim             now
+      250      0.8423        0.8063        0.8758       +0.0360         -0.0335
+      500      0.9144        0.8655        0.9157       +0.0489         -0.0013
+    The n=250-500 "LoRA penalty" was a comparison between a tuned full
+    fine-tune and an untuned LoRA. At n=250 LoRA now leads; at n=500 they tie.
+
+    IMPORTANT ASYMMETRY: full fine-tuning was NOT given the same sweep, so
+    "LoRA beats full fine-tuning" is equally unsupported. Neither direction can
+    be claimed until both sides are tuned.
+
+================================================================================
+3A  MATCHED BUDGET — does rank sensitivity really fall as data grows?
+================================================================================
+     n   steps       r=1       r=2       r=4       r=8      r=16    spread
+----------------------------------------------------------------------------------------
+  main grid (budget grows with n):
+   500     160    0.7703    0.8005    0.8050    0.8468    0.8655    0.0952
+  1000     315    0.8983    0.9086    0.9254    0.9279    0.9318    0.0335
+  2417     760    0.9356    0.9440    0.9427    0.9427    0.9498    0.0142
+  matched budget (160 steps everywhere):
+   500     160    0.7703    0.8005    0.8050    0.8468    0.8655    0.0952
+  1000     160    0.7664    0.8076    0.8449    0.8784    0.9015    0.1351
+  2417     160    0.7716    0.7999    0.8333    0.8919    0.9118    0.1403
+
+  At matched budget the spread is 0.0952, 0.1351,
+  0.1403 for n = 500, 1000, 2417 — it does NOT fall with data size;
+  if anything it rises slightly.
+
+  So the decline seen in the main grid (0.095 -> 0.034 -> 0.014) was produced by
+  the larger step budget at larger n, not by the extra data. The "rank
+  sensitivity fades as data grows" pattern is REFUTED as stated.
+
+  Note this is also consistent with Finding 2: at 160 steps the larger ranks
+  have simply had more effective optimisation at lr=3e-4, and the low ranks are
+  still undertrained.
+
+================================================================================
+WHAT SURVIVES
+================================================================================
+  Survives:
+    - The mechanics of the pipeline: stratified subsampling, fixed-size val/test,
+      validation-only model selection, paired seed analysis.
+    - A genuine methodological finding: LoRA rank comparisons are not meaningful
+      at a fixed learning rate. The rank ordering reverses between lr=3e-4 and
+      lr=3e-3, and per-rank tuning removes most of the apparent rank effect.
+      Published rank ablations that hold lr fixed are open to the same objection.
+
+  Does NOT survive:
+    - "Full fine-tuning outperforms LoRA at n=250-500."  Confounded by lr.
+    - "Low rank underfits, so this is a capacity limitation."  It was
+      optimisation; train accuracy reaches ~1.0 at a larger lr.
+    - "Rank sensitivity fades as training data grows."  Artefact of the budget.
+
+  Required before any comparative claim:
+    - The same learning-rate sweep for full fine-tuning.
+    - The sweep extended to all five ranks, not just r=1 and r=16.
+    - Ideally a per-(rank, n) tuned grid, which is the only configuration in
+      which "rank versus data size" is a well-posed question.
+

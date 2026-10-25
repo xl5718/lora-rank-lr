@@ -1,0 +1,63 @@
+============================================================================================
+STUDY 4 — PRE-REGISTERED REPLICATION ANALYSIS
+============================================================================================
+
+############################################################################################
+ARM A:  ?  x  ?
+############################################################################################
+  runs on file: 0   complete seeds: []  (0/5)
+  fewer than 3 complete seeds -> arm NOT analysed (pre-registered rule)
+
+############################################################################################
+ARM B:  Qwen/Qwen2.5-0.5B  x  fpb (Study 3)
+############################################################################################
+  runs on file: 75   complete seeds: [42, 43, 44]  (3/5)
+  NOTE: only 3 complete seeds; reported as a reduced replication
+
+  P1  rank x lr interaction (validation macro-F1, all ranks x all lrs)
+      robust seed-blocked test: Wald = 100.6 on 16 contrasts, wild-bootstrap p = 0.0058   ->  REPLICATES
+      sensitivity, whole-seed cluster bootstrap: p = 0.0113
+      (classical F(16,50) = 4.96, p = 6.25e-06, partial eta2 = 0.61; for comparison with Study 3 only)
+
+  P2  per-rank validation tuning vs fixed lr (TEST accuracy)
+      preferred lr:   r=1: 3e-03   r=2: 3e-03   r=4: 1e-03   r=8: 1e-03   r=16: 1e-03
+      tuned test acc: r=1: 0.9125   r=2: 0.9060   r=4: 0.9067   r=8: 0.9151   r=16: 0.9157
+      fixed-lr spreads: 1e-04: 0.0560   3e-04: 0.0952   1e-03: 0.0296   3e-03: 0.2735   1e-02: 0.3848
+      tuned spread 0.0097 | median fixed 0.0952
+      RATIO = 0.101   95% interval (whole-seed bootstrap) [0.10, 0.41]   share of resamples <= 0.5: 1.00
+      ->  REPLICATES  (bar: ratio <= 0.50)
+
+  S1  pre-registered reversal contrasts (secondary; IUT, Holm over 2)
+      C1: r16 > r1 at 3e-04 by +0.1437 (p=0.0046);  r1 > r16 at 3e-03 by +0.3258 (p=0.0682)
+          contrast p = 0.0682  ->  INCONCLUSIVE after correction
+      C2: r8 > r2 at 3e-04 by +0.0710 (p=0.0467);  r2 > r8 at 3e-03 by +0.2201 (p=0.0526)
+          contrast p = 0.0526  ->  INCONCLUSIVE after correction
+
+  EXPLORATORY (descriptive; not decision-relevant)
+      middle ranks {2,4,8}, all lrs: robust p = 0.0425
+      stable lrs ['3e-04', '1e-03']: all ranks robust p = 0.0070; middle ranks robust p = 0.3250  (low power: see study4_power_check)
+      fit map (L = low-fit < 0.8, D = diverged <= majority 0.621):
+        rank     1e-04     3e-04     1e-03     3e-03     1e-02
+       1     L3 D0        ok        ok        ok     L0 D3
+       2     L3 D0        ok        ok        ok     L0 D3
+       4     L3 D0        ok        ok        ok     L3 D0
+       8     L3 D0        ok        ok     L2 D0     L3 D0
+      16        ok        ok        ok     L0 D2     L0 D3
+      per-seed Spearman(rank, log preferred lr) = -0.77 (p = 0.001)
+
+############################################################################################
+ARM C:  ?  x  ?
+############################################################################################
+  runs on file: 0   complete seeds: []  (0/5)
+  fewer than 3 complete seeds -> arm NOT analysed (pre-registered rule)
+
+============================================================================================
+DECISION  (supervisor, Oct 2026)
+============================================================================================
+  arm A: not analysed
+  arm B: P1 [yes]  P2 [yes]  ->  REPLICATES
+  arm C: not analysed
+
+  NOT all arms replicate (or not all analysed) -> discuss with the supervisor before any further experiment.
+
+wrote study4_prereg_summary.json
